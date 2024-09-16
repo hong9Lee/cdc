@@ -1,1 +1,50 @@
+server:
+  port: 9090
 
+
+spring:
+  application:
+    name: cdc
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  datasource:
+    hikari:
+      max-lifetime: 250000 #250 sec
+    driver-class-name: software.aws.rds.jdbc.mysql.Driver
+    url: jdbc:mysql://localhost:23306/cdc?autoReconnect=true
+    username: cdc_user
+    password: cdc_user
+
+  flyway:
+    enabled: true
+    out-of-order: true
+    baseline-on-migrate: true
+    locations:
+      - "classpath:db/migration/cdc"
+
+  kafka:
+    topics:
+      order-change-request: order-change-request
+    consumer:
+      group-id: cdc-consumer
+      bootstrap-servers: localhost:29092
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      bootstrap-servers: localhost:29092
+
+  cache:
+    type: redis
+  data:
+    redis:
+      host: localhost
+      port: 26379
+      ttl: 300
