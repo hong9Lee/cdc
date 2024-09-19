@@ -11,11 +11,11 @@ class OrderController(
     private val orderChangeFacadeService: OrderChangeFacadeService
 ) {
 
-    @GetMapping(UrlConstants.주문_상태_변경)
+    @GetMapping(UrlConstants.주문_상태_변경_outbox)
     fun orderStatusChange(
         request: OrderStatusChangeRequest
     ) {
-        orderChangeFacadeService.changeOrderStatus(
+        orderChangeFacadeService.changeOrderStatusByOutbox(
             request = request
         )
     }

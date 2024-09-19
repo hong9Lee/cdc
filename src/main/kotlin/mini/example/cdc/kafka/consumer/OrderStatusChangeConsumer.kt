@@ -1,4 +1,4 @@
-package mini.example.cdc.event.kafka.consumer
+package mini.example.cdc.kafka.consumer
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import mini.example.cdc.event.OrderStatusChangeEvent
