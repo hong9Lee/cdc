@@ -4,12 +4,17 @@ services:
   mysql:
     container_name: cdc-mysql
     platform: linux/amd64
-    image: mysql:8-oracle
+    image: mysql:8.0.33
     volumes:
       - ./local-db/conf:/etc/mysql/conf.d
       - ./local-db/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "23306:3306"
+    command:
+      --server-id=1
+      --log-bin=mysql-bin
+      --binlog-format=ROW
+      --binlog-row-image=FULL
     environment:
       TZ: Asia/Seoul
       MYSQL_ROOT_PASSWORD: 102030
@@ -71,7 +76,28 @@ services:
       - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
     networks:
       - local-net
-
+  kafka-connect:
+    image: debezium/connect:latest
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: debezium_connect_configs
+      OFFSET_STORAGE_TOPIC: debezium_connect_offsets
+      STATUS_STORAGE_TOPIC: debezium_connect_statuses
+    ports:
+      - "8083:8083"
+    depends_on:
+      - kafka
+      - mysql
+    networks:
+      - local-net
+  debezium-connector-setup:
+    image: curlimages/curl:latest
+    depends_on:
+      - kafka-connect
+    volumes:
+      - ./debezium/register_debezium_connector.sh:/register_debezium_connector.sh
+    entrypoint: [ "sh", "/register_debezium_connector.sh" ]
 networks:
   local-net:
     driver: bridge
