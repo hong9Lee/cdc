@@ -19,6 +19,12 @@ class OrderChangeFacadeService(
     private val eventPublisher: ApplicationEventPublisher
 ) {
 
+    fun changeOrderStatus(request: OrderStatusChangeRequest) {
+        logger.info { "changeOrderStatus init ${ TransactionSynchronizationManager.getCurrentTransactionName()}" }
+        /** 1. 도메인 로직 */
+        updateOrderStatus(request)
+    }
+
     fun changeOrderStatusByOutbox(
         request: OrderStatusChangeRequest
     ) {
